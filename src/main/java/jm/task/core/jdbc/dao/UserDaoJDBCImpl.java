@@ -16,9 +16,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        sqlCommand = "CREATE TABLE IF NOT EXISTS User (id BigInt PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20) , lastName VARCHAR(20), age TINYINT)";
+        sqlCommand = "CREATE TABLE IF NOT EXISTS user (id BigInt PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20) , lastName VARCHAR(20), age TINYINT)";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             statement = connection.createStatement();
             // создание таблицы
             statement.executeUpdate(sqlCommand);
@@ -28,9 +28,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        sqlCommand = "DROP TABLE IF EXISTS User";
+        sqlCommand = "DROP TABLE IF EXISTS user";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             statement = connection.createStatement();
             statement.executeUpdate(sqlCommand);
         } catch (ClassNotFoundException | SQLException throwables) {
@@ -41,9 +41,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         createUsersTable();
-        sqlCommand = "INSERT User(name, lastName, age) VALUES (?, ?, ?)";
+        sqlCommand = "INSERT user(name, lastName, age) VALUES (?, ?, ?)";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             preparedStatement = connection.prepareStatement(sqlCommand);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
@@ -56,9 +56,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        sqlCommand = "DELETE FROM User where id = ?";
+        sqlCommand = "DELETE FROM user where id = ?";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             preparedStatement = connection.prepareStatement(sqlCommand);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
@@ -69,9 +69,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        sqlCommand = "Select * from User";
+        sqlCommand = "Select * from user";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(sqlCommand);
             while (rs.next()){
@@ -81,7 +81,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 list.add(new User(rs.getString("name"), rs.getString("lastName"),
                         rs.getByte("age")));
             }
-
         } catch (ClassNotFoundException | SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -89,9 +88,9 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        sqlCommand = "TRUNCATE Table User";
+        sqlCommand = "TRUNCATE Table user";
         try {
-            connection = Util.getOracleConnection();
+            connection = Util.getConnection();
             statement = connection.createStatement();
             statement.executeUpdate(sqlCommand);
         } catch (ClassNotFoundException | SQLException throwables) {

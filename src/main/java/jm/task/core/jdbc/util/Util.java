@@ -5,47 +5,65 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.service.ServiceRegistry;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
-    private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://127.0.0.1:3306/business?useSSL=false";
-    private static final String DB_USERNAME = "root";
-    private static final String DB_PASSWORD = "root";
     private static SessionFactory sessionFactory;
+    private static Properties properties;
+    private static String url;
+    private static String username;
+    private static String password;
+    private static String driver;
+
+    private static void loadProperties() throws IOException {
+        properties = new Properties();
+        try(InputStream in = Files.newInputStream(Paths.get(".\\src\\main\\resources\\database.properties"))){
+            properties.load(in);
+        }
+        url = properties.getProperty("url");
+        username = properties.getProperty("username");
+        password = properties.getProperty("password");
+        driver = properties.getProperty("driver");
+    }
 
     // реализуйте настройку соеденения с БД
-    public static Connection getConnection() throws SQLException, ClassNotFoundException {
-        Connection connection = null;
-        Class.forName(DB_DRIVER);
-        connection = DriverManager.getConnection(DB_URL,DB_USERNAME,DB_PASSWORD);
-        return connection;
+    public static Connection getConnection() throws SQLException, ClassNotFoundException, IOException {
+        loadProperties();
+        Class.forName(driver);
+        return DriverManager.getConnection(url,username,password);
     }
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
+                loadProperties();
                 Configuration configuration = new Configuration();
                 Properties settings = new Properties();
-                settings.put(Environment.DRIVER, DB_DRIVER);
-                settings.put(Environment.URL, DB_URL);
-                settings.put(Environment.USER, DB_USERNAME);
-                settings.put(Environment.PASS, DB_PASSWORD);
-                settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
-                settings.put(Environment.SHOW_SQL, "true");
-//                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-//                settings.put(Environment.HBM2DDL_AUTO, "create-drop");
+                String dialect = properties.getProperty("dialect");
+                settings.put(Environment.DRIVER, driver);
+                settings.put(Environment.URL, url);
+                settings.put(Environment.USER, username);
+                settings.put(Environment.PASS, password);
+                settings.put(Environment.DIALECT, dialect);
+//                settings.put(Environment.SHOW_SQL, "true");
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(User.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-            } catch (Exception e) {
+            } catch (JDBCConnectionException | IOException e) {
                 e.printStackTrace();
+                System.exit(0);
             }
         }
         return sessionFactory;

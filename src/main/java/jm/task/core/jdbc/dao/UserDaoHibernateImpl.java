@@ -4,19 +4,19 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
 
-    private SessionFactory sessionFactory = Util.getSessionFactory();
+    private final SessionFactory sessionFactory = Util.getSessionFactory();
     private Transaction transaction;
     private Session session;
     private String hql;
     private Query query;
 
     public UserDaoHibernateImpl() {
-
     }
 
     @Override

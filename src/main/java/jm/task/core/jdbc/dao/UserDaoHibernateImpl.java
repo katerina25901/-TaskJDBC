@@ -4,7 +4,6 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class UserDaoHibernateImpl implements UserDao {
     private final SessionFactory sessionFactory = Util.getSessionFactory();
     private Transaction transaction;
     private Session session;
-    private String hql;
+    private String sqlCommand;
     private Query query;
 
     public UserDaoHibernateImpl() {
@@ -24,10 +23,10 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            hql = "CREATE TABLE IF NOT EXISTS user " +
+            sqlCommand = "CREATE TABLE IF NOT EXISTS user " +
                     "(id BigInt PRIMARY KEY AUTO_INCREMENT, " +
                     "name VARCHAR(20) , lastName VARCHAR(20), age TINYINT)";
-            query = session.createSQLQuery(hql);
+            query = session.createSQLQuery(sqlCommand);
             query.executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
@@ -42,8 +41,8 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            hql = "DROP TABLE IF EXISTS user";
-            query = session.createSQLQuery(hql);
+            sqlCommand = "DROP TABLE IF EXISTS user";
+            query = session.createSQLQuery(sqlCommand);
             query.executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
@@ -104,9 +103,13 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            hql = "TRUNCATE Table user";
-            query = session.createSQLQuery(hql);
-            query.executeUpdate();
+            List<User> users = session.createQuery("FROM User").list();
+            for (User user : users) {
+                session.delete(user);
+            }
+//            sqlCommand = "TRUNCATE Table user";
+//            query = session.createSQLQuery(sqlCommand);
+//            query.executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
             e.printStackTrace();

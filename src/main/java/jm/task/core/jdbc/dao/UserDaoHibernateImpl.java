@@ -12,7 +12,7 @@ public class UserDaoHibernateImpl implements UserDao {
     private final SessionFactory sessionFactory = Util.getSessionFactory();
     private Transaction transaction;
     private Session session;
-    private String sqlCommand;
+    private String queryCommand;
     private Query query;
 
     public UserDaoHibernateImpl() {
@@ -23,10 +23,10 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            sqlCommand = "CREATE TABLE IF NOT EXISTS user " +
+            queryCommand = "CREATE TABLE IF NOT EXISTS user " +
                     "(id BigInt PRIMARY KEY AUTO_INCREMENT, " +
                     "name VARCHAR(20) , lastName VARCHAR(20), age TINYINT)";
-            query = session.createSQLQuery(sqlCommand);
+            query = session.createSQLQuery(queryCommand);
             query.executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
@@ -41,8 +41,8 @@ public class UserDaoHibernateImpl implements UserDao {
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            sqlCommand = "DROP TABLE IF EXISTS user";
-            query = session.createSQLQuery(sqlCommand);
+            queryCommand = "DROP TABLE IF EXISTS user";
+            query = session.createSQLQuery(queryCommand);
             query.executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {

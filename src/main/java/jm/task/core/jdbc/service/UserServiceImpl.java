@@ -13,12 +13,10 @@ public class UserServiceImpl implements UserService {
 
     public void createUsersTable() {
         userdao.createUsersTable();
-
     }
 
     public void dropUsersTable() {
         userdao.dropUsersTable();
-
     }
 
     public void saveUser(String name, String lastName, byte age) {
@@ -36,6 +34,5 @@ public class UserServiceImpl implements UserService {
 
     public void cleanUsersTable() {
         userdao.cleanUsersTable();
-
     }
 }

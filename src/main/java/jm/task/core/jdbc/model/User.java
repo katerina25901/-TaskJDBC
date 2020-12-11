@@ -64,10 +64,7 @@ public class User {
     public String toString() {
         String info = String.format(
                 "%s %s %s",
-                name,
-                lastName,
-                age
-        );
+                name, lastName, age);
         return info;
     }
 }

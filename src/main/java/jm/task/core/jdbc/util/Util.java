@@ -24,20 +24,27 @@ public class Util {
     private static String username;
     private static String password;
     private static String driver;
+    private static String dialect;
 
-    private static void loadProperties() throws IOException {
-        properties = new Properties();
-        try(InputStream in = Files.newInputStream(Paths.get(".\\src\\main\\resources\\database.properties"))){
-            properties.load(in);
+    private static void loadProperties() {
+        if (properties == null) {
+            properties = new Properties();
+            try(InputStream in = Files.newInputStream(Paths.get(".\\src\\main\\resources\\database.properties"))){
+                properties.load(in);
+                url = properties.getProperty("url");
+                username = properties.getProperty("username");
+                password = properties.getProperty("password");
+                driver = properties.getProperty("driver");
+                dialect = properties.getProperty("dialect");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
-        url = properties.getProperty("url");
-        username = properties.getProperty("username");
-        password = properties.getProperty("password");
-        driver = properties.getProperty("driver");
     }
 
     // реализуйте настройку соеденения с БД
-    public static Connection getConnection() throws SQLException, ClassNotFoundException, IOException {
+    public static Connection getConnection() throws SQLException, ClassNotFoundException {
         loadProperties();
         Class.forName(driver);
         return DriverManager.getConnection(url,username,password);
@@ -49,19 +56,18 @@ public class Util {
                 loadProperties();
                 Configuration configuration = new Configuration();
                 Properties settings = new Properties();
-                String dialect = properties.getProperty("dialect");
                 settings.put(Environment.DRIVER, driver);
                 settings.put(Environment.URL, url);
                 settings.put(Environment.USER, username);
                 settings.put(Environment.PASS, password);
                 settings.put(Environment.DIALECT, dialect);
-//                settings.put(Environment.SHOW_SQL, "true");
+//                settings.put(Environment.HBM2DDL_AUTO, "update");
                 configuration.setProperties(settings);
                 configuration.addAnnotatedClass(User.class);
                 ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                         .applySettings(configuration.getProperties()).build();
                 sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-            } catch (JDBCConnectionException | IOException e) {
+            } catch (JDBCConnectionException e) {
                 e.printStackTrace();
                 System.exit(0);
             }
